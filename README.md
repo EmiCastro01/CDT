@@ -6,3 +6,7 @@ We are:
 - Castillo Darío
 - Martínez Priscila
 - Castro Emiliano
+
+## Document organization
+Every document in this repository is stored in MD files, in the corresponding folders.
+In each folder, you will find the documents related to that topic.
