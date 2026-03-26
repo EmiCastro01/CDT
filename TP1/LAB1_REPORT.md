@@ -125,6 +125,39 @@ El paquete que llegó a Priscila fue el siguiente:
 
 Se puede observar con claridad los pasos de la traza del paquete, viajando por la red. 
 
+### **Reflexiones y documentación**
+
+**Direccionamiento logico (IP) y físico (MAC)**
+
+La dirección IP funciona como un identificador lógico de extremo a extremo, su objetivo es señalar la ubicación final del host en la red global. Y debido a que el destino del paquete no varía durante la transmisión, esta dirección permanece constante, lo cual asegura que la información llegue correctamente a través de múltiples redes interconectadas, independientemente del camino que tome. 
+
+Por otro lado, la dirección MAC es un identificador físico con alcance de enlace local, válido solo dentro de un mismo segmento de red. Por ende, cada vez que el paquete llega a un router, este lo desencapsula, analiza la IP de destino y genera un nuevo frame ethernet con la dirección MAC del siguiente salto o del destino final, de modo que este valor cambia en cada tramo físico del recorrido.
+
+**Gateway vs host**
+
+El protocolo ARP que utilizamos para descubrir direcciones MAC funciona mediante mensajes de broadcasts locales que no pueden atravesar routers, es decir, solo sirve para descubrir dispositivos dentro de la misma subred. Por ende, si el destino está en otra red y el host intenta alcanzarlo, su petición nunca saldría de la red local y la comunicación fallaría.
+Para eso, se usa, un default gateway, el cual resuelve ese problema. El host le entrega el paquete usando su MAC como destino del frame Ethernet, y el gateway se encarga de enrutar el paquete hacia redes externas usando su tabla de ruteo y sus interfaces.
+
+**Ventajas de ruteo hop-by-hop**
+
+El modelo hop-by-hop permite que cada router opere de forma independiente sin necesidad de conocer la topología completa de la red. Algunas ventajas de este modelo son:
+
+- **_Escalabilidad_:** dado que ningún dispositivo necesita conocer por completo la red, solo cual es el siguiente paso para cada bloque de direcciones. Incorporar nuevas redes solo requiere actualizar los routers cercanos.
+
+- **_Resiliencia_:** si un enlace cae, los routers actualizan sus tablas localmente y redirigen el tráfico por rutas alternativas sin que los hosts deban intervenir.
+
+- **_Eficiencia distribuida_:** la toma de decisiones se reparte entre todos los routers, evitando un punto central de control que sería un cuello de botella o un punto único de falla en una red de escala global.
+
+
+**Reconstrucción del frame ethernet**
+
+Debido a que el frame ethernet contiene las direcciones MAC de origen y destino que son válidas dentro del enlace local en el que se generaron, es necesario reconstruir el frame en cada salto, ya que las direcciones físicas deben coincidir con los dispositivos de cada nuevo segmento de red.  En caso de que el router intentara reenviar exactamente el mismo frame que le llegó sin modificarlo, las MACs no corresponderían a ningún dispositivo del siguiente segmento y el paquete terminaría siendo descartado.
+
+
+**TTL (Time To Live)**
+
+El TTL hac referencia al número máximo de saltos que un paquete puede atravesar antes de ser descartado. Este mecanismo previene que los paquetes circulen indefinidamente en la red ante situaciones que provoquen bucles de ruteo. Sin el TTL, esos paquetes se acumularían en la red consumiendo ancho de banda y recursos de los routers, afectando el rendimiento de la red.
+
 ---
 ## Desarrollo | Segunda parte
 
