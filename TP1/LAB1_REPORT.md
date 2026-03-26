@@ -33,10 +33,101 @@ Este trabajo práctico aborda ambos aspectos. Inicialmente se estudia el mecanis
 
 ## Desarrollo | Primera parte
 
+###  **Identificación de dispositivos y armado de la subred.**
+
+Cada integrante del equipo fue asignado con un dispositivo de red. Con todos estos dispositivos, fue configurada la LAN interna. Las asignaciones fueron las siguientes.
+
+
+| **Integrante** | MAC | IP | Tipo | Payload |
+| :---: | :---: | :---: | :---: | :---: |
+| Darío Castillo | AB:41:13 | 10.9.0.103 | Host | 1011010110100110 |
+| Priscila Martínez | AB:43:17 | 10.9.0.102 | Host | 0100110010011010 |
+| Castro Emiliano | AC:43:74 |10.9.0.101 | Host | 1001001110010100 |
+| Arrieta Gabriel | AD:71:88 |10.9.0.1 | Default Gateway | - |
+
+
+
+### **Armado de la Topología.**
+
+Se configuró una red entre todas las subredes de cada equipo. La topología se estableció como se muestra a continuación.
+<div align="center">
+    <img src="../resources/topology.png">
+</div>
+Las conexiones entre routers se simularon con hilos de lana por donde viajan los paquetes.
+El switch central es una configuración de tres routers, cuyas asignaciones fueron a tres equipos encargados de determinar las trazas de los paquetes de forma óptima.
+
+### **Conformación de los paquetes.**
+
+Cada integrante host completó los campos de los paquetes, simulando los encapsulamientos de Capa 2 y 3, con los respectivos IP de destino y origen, MAC de destino y TTL (Time to live). El campo CRC no fue utilizado para esta parte de la práctica.
+El destino fue asignado también. De esta forma, cada integrante sabía a quién enviar el paquete antes de crearlo.
+Ejemplo (Paquete de Emiliano):
+
+| **FRAME ETHERNET** | CAPA 2 |
+| :--- | :--- |
+| MAC DESTINO | AD:71:88 |
+| MAC ORIGEN | AC:43:74 |
+| **PAQUETE IP** | CAPA 3 |
+| IP ORIGEN | 10.9.0.101 |
+| IP DESTINO | 10.6.0.102 |
+| TTL | 6 |
+| PAYLOAD | 10010010110010 |
+| CRC | - |
+Estos paquetes se simularon con tarjetas físicas.
+
+### **Simulación de las transmisiones y recepciones.**
+
+- **Hosts de Origen:**
+Una vez completado el paquete con los datos, se consulta la máscara de subred para determinar si el paquete pertenece a la red interna. En este caso, ningún host tuvo asignado un destino interno. Simulando el proceso ARP, se mandaron los paquetes al default gateway, de forma que el primer **MAC DESTINO** es el de este dispositivo. Toda la encapsulación del frame ethernet y del paquete IP quedó como se muestra en la tabla.
+Ejemplo (Frame de Priscila):
+
+| **FRAME ETHERNET** | |
+| :--- | :--- |
+| MAC DESTINO | AD:71:88 (Default Gateway) |
+| MAC ORIGEN | AB:43:17 |
+| **PAQUETE IP** | |
+| IP ORIGEN | 10.9.0.102 |
+| IP DESTINO | 10.12.0.105 |
+| TTL | 6 |
+| PAYLOAD | 0100110010011010 |
+| CRC | - |
+
+
+- **Router:**
+El router recibió los frames ethernet de cada host. Los desencapsuló, de forma que obtuvo los paquetes IP. Decrementó el TTL de cada uno, y consultó al equipo del router más cercano, su MAC. Este último procedimiento simuló una ARP request de un router intermediario, debido a que inicialmente no hay tabla de enrutamiento. Una vez obtenida la dirección MAC del siguiente salto, se encapsuló nuevamente en una trama ethernet de Capa 2, con el MAC ORIGEN del propio router (default gateway) y el MAC DESTINO del next-hop.
+Siguiendo el mismo ejemplo, el paquete de Priscila cambió de la siguiente manera:
+ 
+| **FRAME ETHERNET** | |
+| :--- | :--- |
+| MAC DESTINO | ~~AD:71:88~~ AC:43:17 |
+| MAC ORIGEN | ~~AB:43:17~~ AD:71:88|
+| **PAQUETE IP** | |
+| IP ORIGEN | 10.9.0.102 |
+| IP DESTINO | 10.12.0.105 |
+| TTL | ~~6~~ 5 |
+| PAYLOAD | 0100110010011010 |
+| CRC | - |
+
+- **Host Destino:**
+Una vez transcurrido el procesamiento de los paquetes por parte de los routers en el switch central, llegaron a la red interna las tres tramas ethernet correspondientes. El procesamiento de desencapsulamiento fue: Leer la dirección MAC de DESTINO y verificar que era la de nuestros dispositivos, leer la dirección IP para verificar, y finalmente leer el payload.
+De esta forma se concretó la comunicación.
+El paquete que llegó a Priscila fue el siguiente:
+
+| **FRAME ETHERNET** | |
+| :--- | :--- |
+| MAC DESTINO | ~~AB:40:39~~ ~~AC:45:70~~ ~~AA:45:92~~ ~~AD:71:88~~ AB:43:17|
+| MAC ORIGEN | ~~AC:44:07~~ ~~AB:40:39~~ ~~AC:45:70~~ ~~AA:45:92~~ AD:71:88 |
+| **PAQUETE IP** | |
+| IP ORIGEN | 10.9.0.102 |
+| IP DESTINO | 10.12.0.105 |
+| TTL | ~~6~~ ~~5~~ ~~4~~ 3 |
+| PAYLOAD | 0100110010011010 |
+| CRC | - |
+
+Se puede observar con claridad los pasos de la traza del paquete, viajando por la red. 
+
 ---
 ## Desarrollo | Segunda parte
 
 ## Referencias
 
 [1] [Stallings - Comunicaciones y Redes de Computadores 7ed]
-
