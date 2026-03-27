@@ -189,6 +189,94 @@ En caso de usar paridad impar, se niega el resultado final pasándolo por una co
 Para empezar con la parte práctica, analizaremos el primer escenario correspondiente a la transmisión de un mensaje desde nuestro equipo. Antes de enviar la carga útil a la red, aplicaremos el algoritmo de Checksum para generar el byte de verificación que acompañará a los datos:
 
 
+### Paquete enviado:
+
+#### CheckSum
+
+El primer paso es expresar en nibles cada dígito del payload que queremos enviar, para este caso el payload es ***3D1E*** por lo que tendremos ***0011 1101 0001 1110*** seguidamente hacemos la operación xor donde el primer operando son los primeros dos  dígitos del payload y el segundo operando los dos últimos.
+(0011 1101)xor( 0001 1110) obtenemos 0010 0011 equivalente a ***23h*** lo cual sería nuestro checksum.
+
+#### Resumen de codificación de nuestro paquete a enviar:
+
+```
+***ip origen:*** 10.9.0.1
+***ip destino:***
+***PAYLOAD:*** (3d1e)h = (0011 1101 0001 1110 )b
+# aplicamos CheckSum:
+0011 1101
+0001 1110 xor
+—----------
+0010 0011 = 23h 
+# aplicamos bit paridad par:
+cantidad de ´1’ = 9. Bit necesario para ser par: 1
+si usamos bit paridad por nible sería: 2 , 3, 1, 3 cantidades de unos por nible
+Por lo que para ser par sería : 0 1 1 1
+***EDAC(checksum)*** = 23h
+***EDAC(bit paridad)*** = 0 1 1 1 
+```
+
+
+Una vez obtenido este dato, enviamos el payload junto al checksum, una vez que el receptor recibe el paquete tiene dos formas de verificar que el paquete no fue corrompido.
+La primera es la comparación directa, consiste en que el receptor calcula el checksum con el payload recibido y lo compare con el checksum recibido, si no coinciden el payload fue alterado en el camino.
+La segunda forma es por la propiedad del cero, el receptor aplica xor a todo el paquete recibido (0011 1101 xor 0001 1110 xor 0010 0011) y el resultado debería ser 0000 0000 de lo contrario, el payload fue alterado en el camino
+La segunda forma es la más eficiente de validar por medio de hardware.
+
+```
+# Ejemplo cálculo de receptores sobre nuestro paquete enviado:
+PAYLOAD: 0011 1101 0001 1110 
+Checksum forma directa: 
+0011 1101 
+0001 1110 
+—-----------
+0010 0011 = 23h
+Checksum propiedad del cero:
+	0011 1101 
+0001 1110 
+—-----------
+0010 0011 
+0010 0011
+—-----------
+0000 0000 
+```
+
+### Paquete recibido: 
+
+```
+ip origen:10.13.0.102 Enredados
+ip destino:
+payload: 9E07
+edac: 0101: 
+```
+
+#### Bit de paridad
+
+Para decodificar nuestro payload usando este algoritmo, descomponemos cada dígito del payload en binario y encontramos el checksum contando la cantidad de 1 según el bit correspondiente para cada dígito, en este caso usamos paridad par por lo que nuestro checksum será 0000. 
+Esto nos indica que el payload que recibimos fue alterado ya que el checksum que nos llego fue 0101, lo mas normal es que una vez detectado el payload corrupto se solicite el reenvio. Aun asi podemos establecer diferentes hipotesis variando cada digito para que coincida con el checksum correcto, esto nos daria como resultado varios posibles payloads y para determinar cual fue el correcto necesitariamos algoritmos de FEC (Forward Error Correction) ya que es muy complicado pues la cantidad de combinaciones para un payload de 16 bits sera 2¹⁶ 
+
+estos algoritmos agregan metadata para ver si fueron intervenidos o no
+
+Tenemos carga útil + algoritmo y lo comparamos con lo que llegó en el campo de datos
+
+Cuando queramos ver que carga útil deberia haber llegado, veremos que hay diferentes posibilidades de que fue modificado (hay otros algoritmos que dan más información sobre esto).
+
+
+```
+# PAYLOAD RECIBID	O: 9E07 = 1001 1110 0000 0111
+# Usando algoritmo checksum, por forma directa:
+9E:1001 1110
+07: 0000 0111     xor
+—--------------
+    1001 1001: 99h no coincide con EDAC recibido porque  usaron algoritmo de paridad. 
+usando algoritmo de paridad:
+contar 1
+1001 1110 0000 0111 
+por nible cantidad de unos: 2, 3, 0 ,3
+Edac por bit paridad: 0 1 0 1 coincide con EDAC recibido
+```
+
+Al aplicar el algoritmo de Checksum, obtuvimos 99h, lo cual difiere totalmente del EDAC de 4 bits recibido (0101). Esto nos permitió descartar el uso de Checksum y confirmar que el emisor utiliza Paridad Par por Nibbles. Al calcular la paridad por nibbles sobre el payload recibido (9E07), el resultado da exactamente 0101, coincidiendo con el EDAC de la trama. Sin embargo, mediante comunicación externa con el equipo origen, confirmamos que el payload real enviado fue 9E06. Esto demuestra que el router intermedio alteró el mensaje original y, para encubrirlo, recalculó el EDAC para que el engaño fuera matemáticamente indetectable por nuestro equipo receptor.
+
+
 # Conclusion
 
 En esta práctica de laboratorio logramos implementar y verificar con éxito algoritmos de detección de errores (EDAC) como el Checksum y el Bit de Paridad. La experiencia demostró que, si bien estos métodos son altamente efectivos para detectar alteraciones accidentales causadas por ruido en el medio físico (BER), presentan una vulnerabilidad crítica ante intervenciones intencionales. Quedó evidenciado que un nodo intermedio puede alterar la carga útil y recalcular los metadatos de validación, haciendo que el paquete corrupto pase las pruebas de integridad locales del receptor. Para mitigar esto y evitar la retransmisión constante de tramas, en entornos reales es necesario escalar hacia algoritmos de corrección (FEC, como el Código de Hamming) o implementar capas de validación criptográfica.
