@@ -160,6 +160,40 @@ El TTL hac referencia al número máximo de saltos que un paquete puede atravesa
 
 ---
 ## Desarrollo | Segunda parte
+### Marco teórico:
+ 
+***EDAC*** 
+
+Significa detección y corrección de errores. Cuando enviamos una carga útil “payload” desde una IP de origen a una de destino, las señales físicas pueden sufrir ruido, interferencia o atenuación. Esto provoca que un bit que salió como 0 llegue como 1, conocido a esto como BER o la tasa de error de bits.
+
+
+***Algoritmo checksum:*** 
+
+Basado en XOR, técnicamente conocido como verificación de redundancia longitudinal (LRC), es un algoritmo de detección de errores por paridad de bloque.
+
+Funciona segmentando la carga útil de un mensaje en bloques de igual longitud(8 o 16 bits). Luego, aplica la operación lógica booleana XOR de forma posicional (columna por columna) a través de todos los bloques. El resultado final es un bloque adicional de metadatos( el EDAC) que se anexa al mensaje. Su objetivo es garantizar que la suma lógica XOR de todos los bloques recibidos en el destino (datos + EDAC) sea exactamente cero. Si el resultado es distinto de cero, se confirma la pérdida de integridad.
+
+
+***Algoritmo de bit de paridad:***   
+
+El bit de paridad es el resultado de aplicar la operación lógica XOR de forma secuencial a todos los bits de la trama de datos.
+
+Para enviar datos con paridad par, el hardware emisor pasa los bits de la carga útil por una cascada de compuertas XOR. La fórmula es: 
+
+
+Bit de paridad (par) = Bit 1 XOR Bit 2 XOR Bit 3 ... XOR Bit N
+
+En caso de usar paridad impar, se niega el resultado final pasándolo por una compuerta NOT.
+
+
+Para empezar con la parte práctica, analizaremos el primer escenario correspondiente a la transmisión de un mensaje desde nuestro equipo. Antes de enviar la carga útil a la red, aplicaremos el algoritmo de Checksum para generar el byte de verificación que acompañará a los datos:
+
+
+# Conclusion
+
+En esta práctica de laboratorio logramos implementar y verificar con éxito algoritmos de detección de errores (EDAC) como el Checksum y el Bit de Paridad. La experiencia demostró que, si bien estos métodos son altamente efectivos para detectar alteraciones accidentales causadas por ruido en el medio físico (BER), presentan una vulnerabilidad crítica ante intervenciones intencionales. Quedó evidenciado que un nodo intermedio puede alterar la carga útil y recalcular los metadatos de validación, haciendo que el paquete corrupto pase las pruebas de integridad locales del receptor. Para mitigar esto y evitar la retransmisión constante de tramas, en entornos reales es necesario escalar hacia algoritmos de corrección (FEC, como el Código de Hamming) o implementar capas de validación criptográfica.
+
+
 
 ## Referencias
 
