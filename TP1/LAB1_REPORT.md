@@ -6,7 +6,7 @@
 - _Gabriel Arrieta_
 - _Priscila Martinez_
  
-**CTD**  
+**CDT**  
 
 **Facultad de Ciencias Exactas, Físicas y Naturales**  
 
