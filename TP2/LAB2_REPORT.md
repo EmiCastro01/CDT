@@ -11,9 +11,11 @@ Conectar cada computadora a un puerto del switch mediante el cable Cat5e armado 
 Con los cables de la primera parte ya verificados, se procedió a conectar al mismo switch un cable por equipo en distintos puertos Fast Ethernet del switch. Se acordó usar la subred `192.168.2.X/24` y cada grupo configuró su dirección IP estática.  En nuestro caso, la dirección asignada fue `192.168.2.11`
 
 Para configurar la IP dentro de la subred se asignó manualmente desde las configuraciones, configurando los siguientes campos:
-<p>
-    Imagen here
-<p/>
+<p align=center>
+<img width="421" height="251" alt="image" src="https://github.com/user-attachments/assets/570b9744-2bc3-4868-be65-0d56486950dd" />    
+</p>
+
+
 Finalmente, para verificar la configuración aplicada con el comando `ip addr | grep .11`. Se filtraron las salidas y se encontró la dirección activa. Por último y como prueba de la conexión, se utilizó la herramienta `netcat` para abrir un socket y bindear un puerto para poder comunicarse con mensajes con los compañeros en la red. Para eso se utilizó:
 ```
 nc -l 200
