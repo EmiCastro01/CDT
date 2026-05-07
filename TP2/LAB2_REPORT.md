@@ -1,5 +1,21 @@
 
 
+### Acceso a administración y modificación de claves del switch
+
+Una vez que aparece la consola, se puede verificar la configuración existente del switch con el comando `show running-config`. Dicho comando muestra la configuración completa del switch: contraseñas (cifradas o en texto plano si es que fueron configuradas), VLANs con sus respectivas interfaces, modos de los puertos (access, trunk), direcciones IP de interfaces de administración, etc. Lo cual es útil para evitar problemas con futuras configuraciones.
+Para establecer o modificar las claves de acceso, desde la terminal se puede configurar de la siguiente forma:
+```
+Switch> enable                        ! Ingresar al modo privilegiado con enable 
+Switch# configure terminal            ! Ingresar al modo de configuración global
+Switch(config)# enable secret [PWD]   ! Configurar clave cifrada para modo privilegiado
+Switch(config)# line console 0        ! Acceder a la configuración del acceso por puerto serie
+Switch(config-line)# password [PWD]   ! Configurar clave para la consola
+Switch(config-line)# login            ! Habilitar autenticación
+Switch(config-line)# exit
+Switch(config)# end
+Switch# write memory                  ! Guardar la configuración
+```
+
 ### Configuración de red y prueba de conectividad con pings
 
 Para conectar las PCs al switch y verificar conectividad se hicieron los siguientes pasos:
