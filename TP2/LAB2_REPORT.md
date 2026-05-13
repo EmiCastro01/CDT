@@ -73,6 +73,89 @@ Los pasos seguidos para la construcción del cable fueron los siguientes:
 </p>
 
 
+## Verificación de construcción de cable.
+
+Una vez construido el cable se intercambió con el grupo frame overs para realizar la verificación cruzada. En la cual se tuvo en cuenta:
+
+- **Inspección visual:** se analizó el cable recibido, prestando atención a la correcta inserción de todos los conductores hasta el fondo del conector de forma pareja, se controló el orden de colores, también que la cubierta del cable llegara hasta el interior del conector sin hilos expuestos y si había daños en el conector o en el cable.
+
+- **Verificación eléctrica:** se utilizó un tester para cables de red que verifica la continuidad de cada uno de los 8 pines de forma secuencial, mostrando el encendido ordenado de los LEDs del 1 al 8 de forma simultánea en ambos cables.
+
+**Crítica cable recibido:** 
+
+El cable recibido del grupo “frame overs” visualmente cumple con todo lo mencionado anteriormente y funciona correctamente.
+
+**Feedback de nuestro cable:**
+
+Funciona correctamente pero el conector quedó un poco suelto “baila”. Asi que con posibles movimientos bruscos del cable puede llegar a salirse la ficha a largó plazo. Como solución, se podría poner más plástico/forro dentro de la ficha para que tenga mejor agarre.
+
+---
+
+
+
+
+## Desarrollo | Segunda parte: Equipamiento físico y utilización de equipos de red y análisis de tráfico
+
+## Características principales del switch Cisco
+
+El Cisco Catalyst 2950 es un switch gestionable de configuración fija, útil para conectar dispositivos de usuario final como computadoras e impresoras en redes pequeñas y medianas. Al ser gestionable, permite acceder a su configuración a través de distintas interfaces, lo que lo diferencia de un switch común que simplemente conecta dispositivos sin posibilidad de administración. Sus puertos y características son fijos, es decir, no se pueden agregar módulos ni expandir su hardware. Corre sobre Cisco IOS y ofrece dos conjuntos de software: el Standard Image (SI), que brinda funcionalidad básica de datos, voz y video, y el Enhanced Image (EI), orientado a redes que requieren seguridad adicional, calidad de servicio avanzada (QoS) y alta disponibilidad. Algunas de sus características principales de acuerdo a su datasheet son:
+
+**Puertos y conectividad**
+
+- 24 puertos Fast Ethernet 10/100 Mbps (modelo 2950-24)
+
+- Puerto de consola: conector RJ-45 de 8 pines, con adaptador RJ-45 a DB9 para conexión desde PC
+
+- Puertos de datos con conectores RJ-45, cableado UTP Cat5 de cuatro pares
+
+**Rendimiento**
+
+- Fabric de switching: 8.8 Gbps (modelo 2950-24)
+
+- Velocidad de reenvío: 3.6 Mpps (paquetes de 64 bytes)
+
+- 8 MB de memoria de buffer compartida entre todos los puertos
+
+- 16 MB de DRAM y 8 MB de Flash
+
+- Tabla de hasta 8000 direcciones MAC
+
+**Gestión**
+
+- Administración por CLI via consola serie, Telnet y SSHv2
+
+- Interfaz web embebida: Cisco Device Manager
+
+- Soporte de SNMP v1, v2 y v3 para monitoreo remoto
+
+<p align=center>
+  <img width="757" height="315" alt="image" src="https://github.com/user-attachments/assets/f9f9570a-1ae7-43f8-a96f-e8a967266859" />
+</p>
+
+
+
+## Checklist de las actividades 
+
+### Conexión al puerto de consola del switch con PuTTY
+
+Para administrar el switch se debe conectar un cable serie entre el puerto RJ-45 del switch y el adaptador Serie-USB de la PC. Una vez conectado, se debe identificar el puerto asignado al adaptador, en Linux se puede conocer mediante la terminal filtrando los puertos series con el comando `dmesg | grep tty` , (aparece algo como /dev/ttyUSB0) 
+
+Una vez identificado el puerto, se abre PuTTY, se selecciona el tipo de conexión (serial) y se configuran los parámetros:
+
+- **Serial line:** con el puerto identificado
+
+- **Speed:** 9600
+
+- **Data bits:** 8
+
+- **Stop bits:** 1
+
+- **Parity:** None
+
+- **Flow control:** None
+
+Por último, se hace presiona `Open` para iniciar la sesión y `Enter` para que el switch responda y muestre el prompt de Cisco IOS.
+
 ### Acceso a administración y modificación de claves del switch
 
 Una vez que aparece la consola, se puede verificar la configuración existente del switch con el comando `show running-config`. Dicho comando muestra la configuración completa del switch: contraseñas (cifradas o en texto plano si es que fueron configuradas), VLANs con sus respectivas interfaces, modos de los puertos (access, trunk), direcciones IP de interfaces de administración, etc. Lo cual es útil para evitar problemas con futuras configuraciones.
