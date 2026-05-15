@@ -172,3 +172,85 @@ dario@dario-N-737R:~/Escritorio/tp3redesdecompu$ ncat 4.206.219.90 5005
 </div>
 
 Podemos ver en wireshark los paquetes TCP descifrados que hemos transmitidos y recibidos por el canal.
+
+## ***b)  Protocolo UDP***
+
+Para enviar trafico UDP con ncat necesitamos el parametro -u.
+- Desde la VM : 
+```bash
+ncat -u -l 5005
+```
+- En nuestra pc:
+```bash
+ncat -u 4.206.219.90 5005
+```
+
+<div align="center">
+    <img src="img/fig4b2.png">
+</div>
+<div align="center">
+    <img src="img/fig4b3.png">
+</div>
+
+Filtro en wireshark:
+***udp.port == 5005***
+
+
+<div align="center">
+    <img src="img/fig4b4.png">
+</div>
+
+Podemos descifrar el mensaje enviad por el canal con el protocolo UDP
+
+## ***c) - Conectarse a otra VM (mantener dos sesiones en dos terminales distintas) y establecer conexión con ***netcat*** entre ellas. Documentar un ida y vuelta de frases al estilo chat entre las instancias.***
+
+
+En terminal nueva conecto a pc4:
+
+```bash
+ssh -i pc4_key pc-alumnos-4@34.130.32.165
+```
+
+
+<div align="center">
+    <img src="img/fig4c.png">
+</div>
+
+
+- En PC3 escucho puerto:
+```bash
+ncat -l 5005
+```
+- En PC4 me conecto a la ip de PC3:
+
+```bash
+ncat 4.206.219.90 5005
+```
+
+<div align="center">
+    <img src="img/fig4c2.png">
+</div>
+
+
+
+## ***5) Navegar a la carpeta de su grupo (la que crearon en el ítem 2). Crear un archivo index.html dentro con un mensaje dentro al estilo “Hola Mundo”. Pero sean más creativos... Luego, desplieguen un servidor HTTP:***
+
+```bash
+python3 -m http.server 8000
+```
+- Ingresen desde su PC local al navegador: http://<VM_IP>:<PUERTO> y comprobar el acceso:
+
+- Capturen el tráfico HTTP con wireshark. ¿Pueden descifrar el contenido? ¿Podrían intervenir el contenido?
+---
+
+
+```bash
+pc-alumnos-3@redes-de-computadoras-pc3:~/CDT$ echo "<h1>Hola Mundo - Grupo Dario</h1>" > index.html
+pc-alumnos-3@redes-de-computadoras-pc3:~/CDT$ ls
+index.html
+pc-alumnos-3@redes-de-computadoras-pc3:~/CDT$ cat index.html 
+<h1>Hola Mundo - Grupo Dario</h1>
+pc-alumnos-3@redes-de-computadoras-pc3:~/CDT$ nano index.html 
+pc-alumnos-3@redes-de-computadoras-pc3:~/CDT$ cat index.html 
+```
+
