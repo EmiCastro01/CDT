@@ -1,4 +1,3 @@
-
 #  **Trabajo Práctico N°3**
 
 **Integrantes**:  
@@ -85,3 +84,91 @@ SHA1:	EE D4 6C 91 17 C1 D5 50 E3 07 16 CF 9C A8 B4 93 C6 3D 2C 5A
 SHA256:	6E F7 AD 28 D3 3A 81 E9 A2 69 E2 FD D2 81 71 BD D7 C4 AA BF 20 3E 59 1F 9B FA FF 49 4C 87 A1 E2
 ```
 ---
+## ***2) Verificar conexión SSH con alguna de las VMs que reservaron. Documentar su paso por la VM creando una carpeta con el nombre de su grupo.***
+
+
+
+<div align="center">
+    <img src="img/fig2.png">
+</div>
+
+```bash
+dario@dario-N-737R:~/Escritorio/tp3redesdecompu$ chmod 400 pc3_key.pem 
+dario@dario-N-737R:~/Escritorio/tp3redesdecompu$ chmod 400 pc4_key
+
+
+dario@dario-N-737R:~/Escritorio/tp3redesdecompu$ ssh -i pc3_key.pem pc-alumnos-3@4.206.219.90
+Linux redes-de-computadoras-pc3 6.1.0-44-cloud-amd64 #1 SMP PREEMPT_DYNAMIC Debian 6.1.164-1 (2026-03-09) x86_64
+
+The programs included with the Debian GNU/Linux system are free software;
+the exact distribution terms for each program are described in the
+individual files in /usr/share/doc/*/copyright.
+
+Debian GNU/Linux comes with ABSOLUTELY NO WARRANTY, to the extent
+permitted by applicable law.
+Last login: Wed Apr 22 22:02:34 2026 from 181.9.227.233
+```
+
+
+
+dentro:
+
+
+```bash
+pc-alumnos-3@redes-de-computadoras-pc3:~$ ls
+enredados  ethernautas_v2
+pc-alumnos-3@redes-de-computadoras-pc3:~$ mkdir CDT
+pc-alumnos-3@redes-de-computadoras-pc3:~$ ls
+CDT  enredados  ethernautas_v2
+```
+
+
+## ***3- Usando Wireshark, capturar tráfico SSH y analizar alguno de los paquetes. ¿Podés descifrar el contenido?***
+
+<div align="center">
+    <img src="img/fig3.png">
+</div>
+
+
+Al iniciar wireshark con filtro en ssh no vemos trafico. Pero empezamos a notarlo cuando escribimos un comando en la VM . enviando comandos o solo con escribir en la terminal estabamos generando trafico.
+
+
+<div align="center">
+    <img src="img/fig3a.png">
+</div>
+
+---
+
+## ***4-  Nuestras VMs (virtual machines) están corriendo un SO Debian en una arquitectura x64. Vamos a utilizar netcat para desplegar servidores simples y capturar tráfico. Instalar netcat en la VM si no está instalado (sudo apt install ncat) y en sus computadoras locales. Luego:***
+
+```bash
+sudo apt update && sudo apt install ncat 
+```
+- Instalar ncat en vm y pc local. Luego:
+
+### ***a) ESCUCHANDO CONEXIONES TCP:***
+```bash
+pc-alumnos-3@redes-de-computadoras-pc3:~/CDT$ ncat -l 5005
+```
+
+- Luego en wireshark fltramos el trafico con ***tcp.port == 5005***
+
+- Localmente conectamos nuestra pc local el cliente y conectamos con la ip de la VM:
+
+```bash
+dario@dario-N-737R:~/Escritorio/tp3redesdecompu$ ncat 4.206.219.90 5005
+```
+
+
+- Luego mandamos mensajes desde la terminal local y recibiremos desde la terminal de la VM O VICEVERSA
+
+
+<div align="center">
+    <img src="img/fig4.png">
+</div>
+
+<div align="center">
+    <img src="img/fig4b.png">
+</div>
+
+Podemos ver en wireshark los paquetes TCP descifrados que hemos transmitidos y recibidos por el canal.
