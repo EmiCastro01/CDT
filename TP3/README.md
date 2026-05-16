@@ -253,4 +253,74 @@ pc-alumnos-3@redes-de-computadoras-pc3:~/CDT$ cat index.html
 pc-alumnos-3@redes-de-computadoras-pc3:~/CDT$ nano index.html 
 pc-alumnos-3@redes-de-computadoras-pc3:~/CDT$ cat index.html 
 ```
+---
+Codigo html:
+- [index.html](index.html)
+
+---
+
+
+
+
+- Desplegamos servidor http:
+```bash
+python3 -m http.server 5005
+```
+
+<div align="center">
+    <img src="img/fig5.png">
+</div>
+
+- Navegador:
+
+ ***http://4.206.219.90:5005***
+
+
+<div align="center">
+    <img src="img/fig52.png">
+</div>
+
+
+- En wireshark:
+
+<div align="center">
+    <img src="img/fig53.png">
+</div>
+
+- Podemos ver que es nuestro servidor de python 
+
+
+<div align="center">
+    <img src="img/fig54.png">
+</div>
+
+
+## ***¿Pueden descifrar el contenido? Sí, porque HTTP no es seguro y viaja como texto legible. ¿Podrían intervenirlo? Sí, un atacante podría modificar el código HTML mientras viaja por la red antes de que llegue a tu pantalla.***
+
+
+
+Finalizada la experiencia desconectamos la coneccion remota ssh de las VM
+
+
+<div align="center">
+    <img src="img/fig55.png">
+</div>
+
+## ***6) Ver el siguiente video de Veritasium en YouTube: https://www.youtube.com/watch?v=PPJ6NJkmDAo***}
+
+### ***a) Relacionar el problema que aborda el video con los TPs 1), 2) y 3). ¿Qué cosas que hemos aprendido se aplican directamente al problema demostrado?***
+
+
+En nuestros experimentos pudimos interceptar datos TCP, UDP e HTTP usando Wireshark, y logramos acceder al contenido sin ningún tipo de protección. El video demuestra algo parecido pero en un contexto diferente: un ataque NFC hacia un transporte. La razón por la que funciona es que el protocolo NFC no tiene defensas contra intermediarios.
+
+Cuando trabajamos con SSH observamos que la información viaja cifrada, lo que impide que alguien en el camino pueda leerla. Si Apple Pay hubiera implementado una autenticación criptográfica  en la terminal (de forma similar a como SSH), el ataque sería imposible.
+
+TCP es un protocolo de transporte que por sí solo no es seguro: solo transporta datos sin cifrar ni verificar quién los envía. NFC funciona igual: mueve información de un extremo al otro sin garantías sobre la identidad del remitente o si fue interceptada. 
+
+### ***b) ¿Qué cosas deberíamos tener en cuenta dado el principio de confidencialidad en las redes de computadoras y los resultados obtenidos en este laboratorio?***
+
+
+ De que las redes por defecto no protegen la confidencialidad de los datos. Simplemente transmitir información a través de la red es arriesgado porque cualquiera con acceso al medio puede verla. Demostramos esto de manera práctica: capturamos paquetes y pudimos leer toda la información en texto claro.
+
+ Por eso es fundamental contar con mecanismos adicionales de protección: tanto cifrado como autenticación son indispensables. Ambos son igual de críticos. Si tu contenido está cifrado pero un atacante se hace pasar por el destinatario real, se perdio la seguridad.
 
