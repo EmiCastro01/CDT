@@ -154,3 +154,37 @@ Search. Specialized for SEARCH queries. 3x faster than SQL DB. Upgradeable T1→
 - **Se encuentra en:** capa TCP/IP: **Capa de Aplicación.**
 
 - **Si falta en arquitectura:** Las búsquedas dentro de la aplicación serían extremadamente lentas e ineficientes, obligando a usar comandos pesados (LIKE o REGEX) directamente en la base de datos principal.
+
+
+- ## Réplica (Database Replica)
+```planetext
+Read Offload. Offloads READ from master DB. Requires DB connection. Upgradeable T1→T3.
+```
+
+- **Resuelve el problema de:** Copia los datos de la base de datos principal a nodos secundarios para derivarles el tráfico de lectura, liberando al nodo principal y asegurando que los datos sigan disponibles si este falla.
+
+- **Se encuentra en** capa TCP/IP: **Capa de Aplicación** (utiliza protocolos propios del motor de base de datos para la sincronización).
+
+- **Si falta en arquitectura:** Si la base de datos principal recibe muchas lecturas se saturará rápidamente, y ante una caída del nodo principal, todo el sistema dejará de funcionar por completo.
+
+
+---
+
+
+# 2) Tipos de tráfico
+
+
+### Tabla de Tipos de Tráfico (Server Survival)
+
+| Tipo de Tráfico | Ejemplo Real | Componente Recomendado | Riesgo si se procesa incorrectamente |
+| --- | --- | --- | --- |
+| **STATIC** | Archivos HTML, imágenes de la interfaz, hojas de estilo CSS o scripts de JavaScript. | **CDN** o **Storage** | En el juego, si mandás STATIC a los servidores de cómputo (`Compute`), les agotás la capacidad de CPU/RAM inútilmente, provocando que colapsen cuando llegue tráfico pesado. |
+| **READ** | Consultar el catálogo de productos, leer publicaciones en un feed de inicio o ver perfiles. | **Cache** o **Réplica** de Base de Datos. | Sobrecarga de consultas repetitivas en la base de datos principal (`SQL DB`), aumentando su tiempo de respuesta y bloqueando las escrituras. |
+| **WRITE** | Crear un nuevo usuario, confirmar un pago o guardar una publicación nueva. | **Queue** acoplada a una **SQL DB** (o **NoSQL**). | Si la base de datos procesa demasiadas escrituras simultáneas directas sin una cola (`Queue`) que regule el flujo, el componente se satura y se pierden transacciones críticas. |
+| **UPLOAD** | Subir fotos de perfil, adjuntar documentos PDF o subir videos a la plataforma. | **Storage** | Guardar archivos directamente en el disco del servidor (`Compute`) agota su almacenamiento local instantáneamente, dejando el sistema operativo fuera de servicio. |
+| **SEARCH** | Buscar palabras clave como "Zapatillas Adidas" o aplicar filtros complejos en un buscador. | **Search Engine** | Las búsquedas de texto plano con `LIKE` o `REGEX` son pesadísimas para una base de datos relacional. Si no usás un motor de búsqueda indexado, la base de datos principal se congela. |
+| **MALICIOUS** | Ataques de Denegación de Servicio (DDoS), inyecciones de código (SQLi) o intentos de hackeo. | **Firewall** | El tráfico malicioso saturará y quemará cualquier componente de tu arquitectura. Si no es bloqueado inmediatamente en la entrada por el Firewall, tira todo el sistema abajo. |
+
+---
+
+
