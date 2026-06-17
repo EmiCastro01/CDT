@@ -238,3 +238,47 @@ El tráfico READ masivo saturó las conexiones concurrentes de la base de datos 
 Fue un problema de diseño.
 Podemos solucionar la falla subiendo la capacidad (escalando el tamaño del servidor o de la base de datos), eso dispararía los costos de forma absurda.
 
+# 5) Escalabilidad y balanceo
+
+
+![image](https://hackmd.io/_uploads/HkHu5_xzzl.png)
+---
+
+
+
+## Estrategias:
+- ### **Agregar Balanceador de Carga + Más instancias de Cómputo (Escalabilidad Horizontal)**
+
+Al incrementar el rate de tráfico, vemos que los requests distribuyen su carga de CPU de manera equitativa entre los servidores. El sistema tolera un throughput mucho más alto antes de que los nodos de cómputo empiecen a ponerse amarillos o rojos.
+
+
+
+- ### **Agregar Caché frente a las Lecturas (READ)**
+
+La base de datos relacional se libera drásticamente. Al estar memorizadas las consultas recurrentes en la RAM del Cache, los tiempos de respuesta del backend bajan a milisegundos y se evita el parpadeo de advertencia por sobrecarga en las tablas de la base de datos principal.
+
+
+- ### **Agregar Cola de Mensajes (Queue) para Escrituras (WRITE)**
+
+Cuando hay picos repentinos de registros o inserciones, la cola retiene las peticiones en un buffer y las procesa de manera secuencial y ordenada hacia la base de datos, evitando que esta colapse o rechace conexiones por exceso de concurrencia simultánea.
+
+
+### **¿Escalar horizontalmente siempre mejora el sistema? Justificá usando evidencia del simulador.**
+
+No, escalar horizontalmente no siempre mejora el sistema.
+
+Si un sistema está fallando porque la base de datos relacional (SQL DB) está saturada procesando búsquedas complejas (SEARCH) o lecturas masivas (READ), agregar más servidores de aplicación en paralelo (Compute) mediante un balanceador de carga no resolverá el problema de raíz; de hecho, lo empeorará.
+
+Al clonar las instancias de cómputo horizontalmente, lo único que se logra es multiplicar la cantidad de servidores que le hacen consultas concurrentes a la misma base de datos centralizada. En el simulador se puede evidenciar claramente: aunque agregues 3 o 4 instancias de Compute (lo cual incrementa los costos del presupuesto), la SQL DB se pondrá en rojo y colapsará exactamente al mismo ritmo o incluso más rápido debido al embudo de botellas (bottleneck).
+
+---
+
+## 6) Sobrevivir
+
+
+![image](https://hackmd.io/_uploads/BJpHJpJWMx.png)
+---
+
+Prueba:
+
+![image](https://hackmd.io/_uploads/S1jrOpybGl.png)
