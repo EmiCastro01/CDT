@@ -62,4 +62,22 @@ En el servidor se registró la conexión desde la IP del cliente (192.168.0.15),
 
 <img width="528" height="102" alt="image" src="https://github.com/user-attachments/assets/755a11d7-a9a3-48c9-9bf4-72ed3ed402ad" />
 
+### Implementación de aplicación cliente
+
+En este punto, se implementó un cliente en python diseñado para interactuar con el servidor TCP desplegado en el punto anterior. Para ello se extendió el script client.py propuesto, con una interfaz interactiva por consola que permite:   
+
+- **Configuración de conexión:** al ejecutarse el script, solicita la dirección IP y el puerto del servidor y valida que el formato de la IP sea correcto y que el puerto se encuentre dentro del rango válido (1-65535) antes de intentar conectarse. En caso de producirse algún fallo (ya sea por timeout, conexión rechazada o formato inválido), se informa el motivo con un mensaje y el programa finaliza.                                 
+
+- **Selección de modo de envío:** una vez que la conexión se establece, el menú permite elegir entre dos modalidades, ya sea mandar un mensaje único, donde se solicita el nombre del grupo y el payload, se transmite el mensaje, y luego retorna al menú principal o mantener la conexión TCP abierta de forma persistente, para ello, se solicita el nombre del grupo al inicio y permite enviar payloads de forma sucesiva utilizando el mismo socket y permite escribiendo la palabra exit volver al menú principal.
+
+Independientemente del modo seleccionado, luego de establecer conexión con el servidor, el payload ingresado se estructura primero en un diccionario, se serializa mediante un JSON con el formato {"group": "...", "payload": "..."} , y finalmente se codifica como un flujo de bytes en UTF-8 antes de ser enviada por el socket. Esto garantiza compatibilidad con el servidor, que espera recibir y decodificar los datos en ese formato.
+
+Para verificar el funcionamiento, se ejecutó en una computadora el servidor y en otra dentro de la misma red, se ejecutó el script del cliente y se estableció conexión con el servidor por 192.168.0.15:5000. Luego se seleccionó el modo de múltiples mensajes, se definió el nombre de grupo y se enviaron payloads de forma continua.
+
+<img width="808" height="478" alt="Screenshot 2026-06-17 at 18-18-19 TP1-Redes de Computadoras - Documentos de Google" src="https://github.com/user-attachments/assets/33b3464d-43ef-4b37-b1ca-4f59d5fa2c7a" />
+
+
+Por último, cuando se estableció la conexión, el servidor detectó la IP del cliente, mostró el mensaje de bienvenida y recibió el flujo de datos, verificó que contaran con las claves de diccionario correctas (group  y  payload), los deserializó e imprimió su contenido en pantalla.  
+
+<img width="825" height="174" alt="Screenshot 2026-06-17 at 18-19-23 TP1-Redes de Computadoras - Documentos de Google" src="https://github.com/user-attachments/assets/82102db9-f17f-4566-9feb-0955fb6467fb" />
 
