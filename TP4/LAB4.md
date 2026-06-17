@@ -1,4 +1,4 @@
-|# **Trabajo Práctico N°4**
+# **Trabajo Práctico N°4**
 
 **Integrantes**:  
 - _Dario Castillo_
