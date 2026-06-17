@@ -17,7 +17,9 @@
 ---
 
 ## Resumen
+
 Este trabajo práctico se centró en el despliegue y comunicación a través de un servidor TCP multi-hilo, incorporando además una capa de seguridad mediante cifrado. Para ello inicialmente se desplegó un servidor multi-hilo y se verificó su funcionamiento enviando mensajes serializados en formato JSON mediante PacketSender. Luego, se desarrolló una aplicación de cliente propia, capaz de establecer conexión con un servidor y serializar la información a transmitir en formato JSON antes de enviarlos. Finalmente, se incorporó una capa de seguridad cifrando la carga útil de los mensajes con AES-CBC, implementando el cifrado del lado del cliente y el descifrado del lado del servidor.
+
 ---
 
 ## Introducción
@@ -44,3 +46,20 @@ Según el formato en que se realice esa conversión, se distinguen dos tipos de 
 |---|---|---|
 | **Binaria** | - Eficiente para sistemas que manejan grandes volúmenes de datos simultáneos <br> <br> - Menor uso de memoria durante la transmisión | - Menor portabilidad en algunos casos, por ejemplo pickle solo funciona en Python <br> <br> - Si el esquema del formato cambia, puede romper la compatibilidad entre versiones |
 | **No binaria** | - Compatible con cualquier lenguaje o plataforma sin configuración adicional <br> <br> - Al ser texto plano, es fácil de versionar y comparar cambios en herramientas como Git | - Puede volverse confuso y difícil de mantener en estructuras de datos muy complejas <br> <br> - Mayor consumo de CPU al parsear en sistemas con muchas solicitudes concurrentes |
+---
+### Despliegue de servidor TCP multi-hilo con Packet Sender
+Para esta actividad, se utilizaron dos computadoras conectadas a la misma red local, una actuando como cliente y otra como servidor, donde:
+En la computadora elegida como servidor se ejecutó el script propuesto de Python server.py, el cual implementa un servidor TCP multi-hilo que escucha en el puerto 5000 y es capaz de atender múltiples clientes de forma concurrente, asignando un hilo independiente a cada conexión. 
+En la computadora cliente, en cambio, se configuró Packet Sender para interactuar con el servidor de forma externa. Para ello, se especificó la dirección IP de destino del servidor (192.168.0.16), el puerto (5000), se seleccionó TCP como protocolo de comunicación y se activó la opción Persistent TCP para mantener la conexión continua sin necesidad de abrir y cerrar el socket por cada mensaje a enviar. El payload se serializó manualmente en el campo ASCII utilizando el estándar JSON bajo el formato  `{"group": "<nombreGrupo>", "payload": "<Mensaje>"}`. Y al presionar Send, se tradujo automáticamente el string en su equivalente hexadecimal para transmitirse como un flujo de bytes a través de la red. 
+
+<img width="528" height="148" alt="image" src="https://github.com/user-attachments/assets/eef4fba4-e7eb-461e-9730-51ca87b928ab" />
+
+Una vez enviado el primer mensaje, se abrió una pestaña dedicada a la sesión activa y fue posible continuar enviando mensajes al servidor a través del mismo socket ya establecido. 
+
+<img width="528" height="141" alt="image" src="https://github.com/user-attachments/assets/e4636b73-7f4b-4af7-85f2-fa5b88cd8a65" />
+
+En el servidor se registró la conexión desde la IP del cliente (192.168.0.15), se procesó el flujo de bytes recibido, se deserializó el JSON y se mostraron los mensajes de forma limpia y ordenada. Finalmente, al cerrar la sesión desde el cliente, el hilo del servidor detectó la interrupción, liberó los recursos del socket y finalizó su ejecución mostrando un mensaje de despedida.
+
+<img width="528" height="102" alt="image" src="https://github.com/user-attachments/assets/755a11d7-a9a3-48c9-9bf4-72ed3ed402ad" />
+
+
