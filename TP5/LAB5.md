@@ -187,4 +187,54 @@ Read Offload. Offloads READ from master DB. Requires DB connection. Upgradeable 
 
 ---
 
+## 3) Testeamos queues
+
+Construccion de infraestructura mínima en modo Sandbox para testeo:
+
+![image](https://hackmd.io/_uploads/rkDYAhkWMl.png)
+
+- **¿Qué sucede después de la Queue al incrementar el rate? (Rate Alto)**
+
+Mientras incrementamos el volumen de tráfico entrante , la cola (Queue) empieza a llenarse (acumula los pedidos en espera), pero el flujo de peticiones que sale después de la queue hacia el componente Compute se mantiene constante y controlado.
+
+La Queue actúa como un amortiguador. El componente Compute tiene una capacidad limitada de procesamiento por segundo. Al subir el rate, en lugar de saturar o romper la instancia de cómputo con un pico de tráfico directo, la cola retiene el exceso y le dosifica el trabajo a Compute a la velocidad máxima que este puede soportar.
+
+- **¿Qué sucede después de la Queue al llevar el rate a cero rápidamente? (Rate a Cero)**
+
+Cuando el tráfico de entrada cae a cero de golpe, después de la queue se sigue viendo tráfico activo fluyendo hacia Compute durante unos segundos, hasta que la cola finalmente se vacía por completo.
+
+Al cortar el ingreso de tráfico, la Queue todavía tiene mensajes almacenados en su memoria interna que se acumularon durante el pico de tráfico alto. Por lo tanto, el sistema de cómputo sigue trabajando procesando ese remanente de manera continua (vaciando el búfer) hasta que el contador de la cola llega a cero.
+
+---
+
+## 4) Primera infraestructura mínima
+
+![image](https://hackmd.io/_uploads/rkDYAhkWMl.png)
+
+---
+
+![image](https://hackmd.io/_uploads/H1kE5deGfg.png)
+
+---
+
+
+
+- **¿Qué componente falló primero?**
+
+El primer componente en colapsar y ponerse en rojo crítico será Compute (la instancia de cómputo) o, en su defecto si el cómputo aguanta un poco más, la SQL DB.
+
+- **¿Por qué creés que falló?**
+
+Falló porque la arquitectura obligó a un servidor de propósito general (Compute) y a una base de datos relacional (SQL DB) a procesar tipos de tráfico para los cuales no están optimizados:
+
+El tráfico STATIC y UPLOAD consumió hilos de procesamiento y ancho de banda del servidor que se podrían haber delegado.
+
+El tráfico SEARCH obligó a la SQL DB a hacer búsquedas de texto pesadísimas, congelando sus tablas.
+
+El tráfico READ masivo saturó las conexiones concurrentes de la base de datos por no tener un colchón de memoria RAM.
+
+- **¿Fue un problema de capacidad, diseño, costo o seguridad?**
+
+Fue un problema de diseño.
+Podemos solucionar la falla subiendo la capacidad (escalando el tamaño del servidor o de la base de datos), eso dispararía los costos de forma absurda.
 
